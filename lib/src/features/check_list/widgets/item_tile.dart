@@ -1,18 +1,34 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:jewelist/src/features/check_list/controllers/controllers.dart';
 import 'package:jewelist/src/models/models.dart';
 
-class ItemTile extends StatelessWidget {
+class ItemTile extends ConsumerWidget {
   final Item item;
-  final Function(bool?) onChecked;
 
   const ItemTile({
     super.key,
     required this.item,
-    required this.onChecked,
   });
 
+  void Function(bool?) onChecked({
+    required BuildContext context,
+    required WidgetRef ref,
+  }) {
+    return (_) {
+      ref
+          .read(
+            checklistControllerProvider.notifier,
+          )
+          .updateItem(
+            item.copyWith(isChecked: !item.isChecked),
+            context,
+          );
+    };
+  }
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Container(
       margin: const EdgeInsets.fromLTRB(15, 20, 15, 0),
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
@@ -24,7 +40,7 @@ class ItemTile extends StatelessWidget {
         children: [
           Checkbox(
             value: item.isChecked,
-            onChanged: onChecked,
+            onChanged: onChecked(context: context, ref: ref),
             fillColor: MaterialStateProperty.resolveWith(
               (states) {
                 if (!states.contains(MaterialState.selected)) {

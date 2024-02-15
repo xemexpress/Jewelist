@@ -1,7 +1,14 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:jewelist/src/constants/constants.dart';
 import 'package:jewelist/src/core/core.dart';
 import 'package:jewelist/src/models/models.dart';
+
+final itemAPIProvider = Provider(
+  (ref) => ItemAPI(
+    checklist: Hive.box(AppConstants.checklistBoxName),
+  ),
+);
 
 abstract class IItemAPI {
   List<ItemDocument> getAllItems();
@@ -45,12 +52,14 @@ class ItemAPI implements IItemAPI {
 
   @override
   List<ItemDocument> getAllItems() {
-    return _checklistBox.get(AppConstants.mainChecklist) ?? [];
+    return (_checklistBox.get(AppConstants.mainChecklist) ?? [])
+        as List<ItemDocument>;
   }
 
   @override
   ItemDocument? updateItem(Item itemToBeUpdated) {
     final mainCheckList = getAllItems();
+
     for (int i = 0; i < mainCheckList.length; i++) {
       final item = mainCheckList[i];
 
