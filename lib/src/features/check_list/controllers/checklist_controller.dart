@@ -46,12 +46,7 @@ class ChecklistController extends StateNotifier<ChecklistState> {
   List<Item> getItems() {
     startLoading();
 
-    final items = _itemAPI
-        .getAllItems()
-        .map(
-          (e) => Item.fromMap(e),
-        )
-        .toList();
+    final items = _itemAPI.getAllItems().map((e) => Item.fromMap(e)).toList();
 
     endLoading();
     state = state.copyWith(items: items);

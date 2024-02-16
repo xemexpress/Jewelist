@@ -52,8 +52,12 @@ class ItemAPI implements IItemAPI {
 
   @override
   List<ItemDocument> getAllItems() {
-    return (_checklistBox.get(AppConstants.mainChecklist) ?? [])
-        as List<ItemDocument>;
+    final List items = (_checklistBox.get(AppConstants.mainChecklist) ?? []);
+
+    final List<ItemDocument> mappedItems =
+        items.whereType<ItemDocument>().toList();
+
+    return mappedItems;
   }
 
   @override

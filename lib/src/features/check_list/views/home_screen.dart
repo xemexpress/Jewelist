@@ -54,18 +54,25 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       appBar: AppBar(
         title: const Text('Jewelist'),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        elevation: 1,
       ),
-      body: ListView.builder(
-        controller: _scrollController,
-        itemCount: items.length,
-        itemBuilder: (context, index) {
-          final item = items[index];
+      body: items.isEmpty
+          ? const Center(
+              child: Text('No items yet.'),
+            )
+          : ListView.separated(
+              controller: _scrollController,
+              padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 20),
+              separatorBuilder: (context, index) => const SizedBox(height: 20),
+              itemCount: items.length,
+              itemBuilder: (context, index) {
+                final item = items[index];
 
-          return ItemTile(
-            item: item,
-          );
-        },
-      ),
+                return ItemTile(
+                  item: item,
+                );
+              },
+            ),
       floatingActionButton: FloatingActionButton(
         onPressed: createNewItem,
         child: const Icon(Icons.add_outlined),
