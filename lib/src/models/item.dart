@@ -1,5 +1,3 @@
-import 'package:jewelist/src/core/core.dart';
-
 class Item {
   String id;
   String title;
@@ -14,6 +12,8 @@ class Item {
     required this.isChecked,
     required this.description,
   });
+
+  String get quantityString => quantity == 0 ? "" : quantity.toString();
 
   Item copyWith({
     String? id,

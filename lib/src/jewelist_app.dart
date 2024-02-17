@@ -41,7 +41,7 @@ class _JewelistAppState extends State<JewelistApp> with WidgetsBindingObserver {
     return ValueListenableBuilder(
       valueListenable: _themeModeNotifier.appBrightness,
       builder: (context, brightness, child) => MaterialApp(
-        title: 'Jewelist | Jeweler\'s List',
+        title: 'Jewelist | Packing for Shows',
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(
             seedColor: Colors.deepPurple,

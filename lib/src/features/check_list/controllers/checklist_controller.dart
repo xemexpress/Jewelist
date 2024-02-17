@@ -80,7 +80,7 @@ class ChecklistController extends StateNotifier<ChecklistState> {
 
       showSnackBar(
         context: context,
-        message: 'Saved ${item.title} x ${item.quantity}.',
+        message: 'Saved ${item.title} x ${item.quantityString}.',
       );
     } catch (e) {
       showSnackBar(
@@ -146,6 +146,10 @@ class ChecklistController extends StateNotifier<ChecklistState> {
 
       final updatedItems = state.items.where((e) => e.id != item.id).toList();
       state = state.copyWith(items: updatedItems);
+      showSnackBar(
+        context: context,
+        message: 'Deleted ${item.title} x ${item.quantityString}',
+      );
     } catch (e) {
       showSnackBar(
         context: context,

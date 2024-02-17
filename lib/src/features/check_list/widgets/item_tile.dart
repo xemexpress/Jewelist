@@ -111,7 +111,7 @@ class ItemTile extends ConsumerWidget {
               width: 20,
             ),
             Text(
-              '${item.quantity}',
+              item.quantityString,
               style: Theme.of(context).textTheme.titleMedium,
             ),
           ],

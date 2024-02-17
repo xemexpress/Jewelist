@@ -47,8 +47,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       appBar: AppBar(
         title: const Text('Jewelist'),
         backgroundColor: Theme.of(context).colorScheme.primary,
+        foregroundColor: Theme.of(context).colorScheme.onPrimary,
         elevation: 2,
       ),
+      // drawer: Drawer(),
       body: items.isEmpty
           ? const Center(
               child: Text('No items yet.'),
