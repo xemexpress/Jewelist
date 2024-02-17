@@ -28,19 +28,52 @@ class ItemTile extends ConsumerWidget {
     };
   }
 
+  void Function(BuildContext) onDelete({
+    required BuildContext context,
+    required WidgetRef ref,
+  }) {
+    return (BuildContext ctx) {
+      ref
+          .read(
+            checklistControllerProvider.notifier,
+          )
+          .deleteItem(item, ctx);
+    };
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Slidable(
       key: ValueKey(item.id),
-      endActionPane: ActionPane(motion: ScrollMotion(), children: [
-        SlidableAction(
-          onPressed: (context) {
-            print('hi');
-          },
-          icon: Icons.edit,
-          label: 'Edit',
-        ),
-      ]),
+      endActionPane: ActionPane(
+        motion: const ScrollMotion(),
+        children: [
+          const SizedBox(
+            width: 10,
+          ),
+          SlidableAction(
+            onPressed: (context) {
+              print('hi');
+            },
+            icon: Icons.edit_outlined,
+            foregroundColor: Theme.of(context).colorScheme.onTertiary,
+            backgroundColor: Theme.of(context).colorScheme.tertiary,
+            borderRadius: BorderRadius.circular(10),
+            spacing: 5,
+          ),
+          const SizedBox(
+            width: 10,
+          ),
+          SlidableAction(
+            onPressed: onDelete(context: context, ref: ref),
+            icon: Icons.delete_outline,
+            foregroundColor: Theme.of(context).colorScheme.onError,
+            backgroundColor: Theme.of(context).colorScheme.error,
+            borderRadius: BorderRadius.circular(10),
+            spacing: 5,
+          ),
+        ],
+      ),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
         decoration: BoxDecoration(

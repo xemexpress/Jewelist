@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:jewelist/src/core/utils/get_update_type.dart';
+import 'package:uuid/uuid.dart';
+
 import 'package:jewelist/src/apis/apis.dart';
 import 'package:jewelist/src/core/core.dart';
 import 'package:jewelist/src/models/models.dart';
-import 'package:uuid/uuid.dart';
 
 class ChecklistState {
   final List<Item> items;
@@ -78,7 +80,7 @@ class ChecklistController extends StateNotifier<ChecklistState> {
 
       showSnackBar(
         context: context,
-        message: 'Created item $item',
+        message: 'Saved ${item.title} x ${item.quantity}.',
       );
     } catch (e) {
       showSnackBar(
@@ -91,6 +93,7 @@ class ChecklistController extends StateNotifier<ChecklistState> {
 
   void updateItem(Item item, BuildContext context) {
     try {
+      ItemUpdateType updateType;
       startLoading();
       final updatedItemDocument = _itemAPI.updateItem(item);
       endLoading();
@@ -101,13 +104,22 @@ class ChecklistController extends StateNotifier<ChecklistState> {
         final checklist = state.items;
         for (var i = 0; i < checklist.length; i++) {
           if (checklist[i].id == updatedItem.id) {
+            updateType = getUpdateType(checklist[i], updatedItem);
+
             checklist[i] = updatedItem;
             state = state.copyWith(items: checklist);
 
-            showSnackBar(
-              context: context,
-              message: 'Updated item $item',
-            );
+            switch (updateType) {
+              case ItemUpdateType.update:
+                showSnackBar(
+                  context: context,
+                  message: updateType.actionResult,
+                );
+
+                break;
+              default:
+                continue;
+            }
             break;
           }
         }

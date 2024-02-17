@@ -1,3 +1,5 @@
+import 'package:jewelist/src/core/core.dart';
+
 class Item {
   String id;
   String title;
@@ -39,7 +41,7 @@ class Item {
     };
   }
 
-  factory Item.fromMap(Map<String, dynamic> map) {
+  factory Item.fromMap(map) {
     return Item(
       id: map['id'] as String,
       title: map['title'] as String,

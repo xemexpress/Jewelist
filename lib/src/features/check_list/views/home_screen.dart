@@ -15,14 +15,7 @@ class HomeScreen extends ConsumerStatefulWidget {
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
-  // late List<Item> checkList;
   final ScrollController _scrollController = ScrollController();
-
-  @override
-  void initState() {
-    super.initState();
-    // Get the latest items
-  }
 
   void createNewItem() {
     // showAboutDialog(
@@ -46,15 +39,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final ChecklistState checkList = ref.watch(checklistControllerProvider);
-    final List<Item> items = checkList.items;
+    final checklist = ref.watch(checklistControllerProvider);
+    final List<Item> items = checklist.items;
 
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.primaryContainer,
       appBar: AppBar(
         title: const Text('Jewelist'),
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        elevation: 1,
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        elevation: 2,
       ),
       body: items.isEmpty
           ? const Center(
@@ -64,8 +57,40 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               controller: _scrollController,
               padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 20),
               separatorBuilder: (context, index) => const SizedBox(height: 20),
-              itemCount: items.length,
+              itemCount: items.length + 1,
               itemBuilder: (context, index) {
+                if (index == items.length) {
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        color: Theme.of(context).colorScheme.outline,
+                        height: 1,
+                        width: 70,
+                      ),
+                      const SizedBox(
+                        width: 5,
+                      ),
+                      Text(
+                        'I literally have a bottom line',
+                        textAlign: TextAlign.center,
+                        style:
+                            Theme.of(context).textTheme.labelMedium!.copyWith(
+                                  color: Theme.of(context).colorScheme.outline,
+                                ),
+                      ),
+                      const SizedBox(
+                        width: 5,
+                      ),
+                      Container(
+                        color: Theme.of(context).colorScheme.outline,
+                        height: 1,
+                        width: 70,
+                      ),
+                    ],
+                  );
+                }
+
                 final item = items[index];
 
                 return ItemTile(

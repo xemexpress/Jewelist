@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:jewelist/src/features/check_list/controllers/controllers.dart';
 
@@ -24,6 +25,8 @@ class _CreateItemDialogState extends ConsumerState<CreateItemDialog> {
   final _quantityFocusNode = FocusNode();
   final _descriptionFocusNode = FocusNode();
 
+  bool _titleError = false;
+
   @override
   void dispose() {
     _titleController.dispose();
@@ -38,6 +41,18 @@ class _CreateItemDialogState extends ConsumerState<CreateItemDialog> {
   }
 
   void saveNewItem() {
+    if (_titleController.text.isEmpty) {
+      setState(() {
+        _titleError = true;
+      });
+      _titleFocusNode.requestFocus();
+      return;
+    } else {
+      setState(() {
+        _titleError = false;
+      });
+    }
+
     final int quantity = int.parse(
       _quantityController.text.isNotEmpty ? _quantityController.text : '0',
     );
@@ -50,6 +65,8 @@ class _CreateItemDialogState extends ConsumerState<CreateItemDialog> {
         );
 
     clearInputs();
+
+    _titleFocusNode.requestFocus();
 
     // After adding the item, scroll to the bottom of the list
     WidgetsBinding.instance.addPostFrameCallback(
@@ -78,66 +95,78 @@ class _CreateItemDialogState extends ConsumerState<CreateItemDialog> {
       titlePadding: const EdgeInsets.fromLTRB(30, 20, 30, 0),
       backgroundColor: Theme.of(context).colorScheme.background,
       content: SizedBox(
-        height: 300,
+        // height: 300,
+        width: 300,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
+            // ItemField(
+            //   controller: _titleController,
+            //   currentFocusNode: _titleFocusNode,
+            //   onTap: () => setState(() {}),
+            //   onChanged: (value) => setState(() {
+            //     _titleError = false;
+            //   }),
+            //   onSubmitted: (value) => _quantityFocusNode.requestFocus(),
+            //   label: 'Title',
+            //   hintText: 'Remember to take it',
+            //   prefixIcon: Icons.inventory_2_outlined,
+            //   textCapitalization: TextCapitalization.words,
+
+            // ),
             TextField(
               controller: _titleController,
               focusNode: _titleFocusNode,
+              onTap: () => setState(() {}),
+              onChanged: (value) => setState(() {
+                _titleError = false;
+              }),
+              autocorrect: false,
               onSubmitted: (value) => _quantityFocusNode.requestFocus(),
               textCapitalization: TextCapitalization.words,
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-                label: Text('Title'),
-                hintText: 'Remember to take it',
-                contentPadding: EdgeInsets.symmetric(horizontal: 10),
-                prefixIcon: Padding(
+              decoration: InputDecoration(
+                border: const OutlineInputBorder(),
+                label: _titleError && !_titleFocusNode.hasFocus
+                    ? Text(
+                        'Think of any title?',
+                        style: TextStyle(
+                            color: Theme.of(context).colorScheme.error),
+                      )
+                    : const Text('Title'),
+                // label: const Text('Title'),
+                hintText: _titleError ? 'Think of any?' : 'Remember to take it',
+                hintStyle: TextStyle(
+                  color: _titleError
+                      ? Theme.of(context).colorScheme.error
+                      : Theme.of(context).colorScheme.onBackground,
+                ),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 10),
+                prefixIcon: const Padding(
                   padding: EdgeInsets.all(8.0),
                   child: Icon(Icons.inventory_2_outlined),
                 ),
-                prefixIconConstraints: BoxConstraints.tightForFinite(),
+                prefixIconConstraints: const BoxConstraints.tightForFinite(),
               ),
             ),
-            TextField(
+            ItemField(
               controller: _quantityController,
-              focusNode: _quantityFocusNode,
+              currentFocusNode: _quantityFocusNode,
+              onTap: () => setState(() {}),
               onSubmitted: (value) => _descriptionFocusNode.requestFocus(),
-              keyboardType: TextInputType.number,
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-                label: Text('Quantity'),
-                contentPadding: EdgeInsets.symmetric(horizontal: 10),
-                hintText: 'Enter here',
-                prefixIcon: Padding(
-                  padding: EdgeInsets.all(8.0),
-                  child: Icon(Icons.label_outline),
-                ),
-                prefixIconConstraints: BoxConstraints.tightForFinite(),
-              ),
+              label: 'Quantity',
+              hintText: 'Enter here',
+              prefixIcon: Icons.label_outline,
+              digitOnly: true,
             ),
-            TextField(
+            ItemField(
               controller: _descriptionController,
-              focusNode: _descriptionFocusNode,
-              maxLines: 3,
+              currentFocusNode: _descriptionFocusNode,
+              onTap: () => setState(() {}),
               onSubmitted: (_) => saveNewItem(),
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-                label: Text('Description'),
-                contentPadding:
-                    EdgeInsets.symmetric(horizontal: 10, vertical: 14),
-                prefixIcon: Column(
-                  children: [
-                    Padding(
-                      padding: EdgeInsets.fromLTRB(8, 4, 8, 8),
-                      child: Icon(Icons.description_outlined),
-                    ),
-                  ],
-                ),
-                prefixIconConstraints: BoxConstraints(minHeight: 79),
-                hintText: 'Enter here',
-                alignLabelWithHint: true,
-              ),
+              label: 'Description',
+              hintText: 'Enter here',
+              prefixIcon: Icons.description_outlined,
+              maxLines: 3,
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
@@ -163,6 +192,81 @@ class _CreateItemDialogState extends ConsumerState<CreateItemDialog> {
           ],
         ),
       ),
+    );
+  }
+}
+
+class ItemField extends StatelessWidget {
+  const ItemField({
+    super.key,
+    required this.controller,
+    required this.currentFocusNode,
+    required this.onTap,
+    required this.onSubmitted,
+    required this.label,
+    required this.hintText,
+    required this.prefixIcon,
+    this.digitOnly = false,
+    this.maxLines = 1,
+    this.textCapitalization = TextCapitalization.none,
+    this.onChanged,
+  });
+
+  final TextEditingController controller;
+  final FocusNode currentFocusNode;
+  final void Function() onTap;
+  final void Function(String) onSubmitted;
+  final String label;
+  final String hintText;
+  final IconData prefixIcon;
+  final bool digitOnly;
+  final int maxLines;
+  final void Function(String)? onChanged;
+  final TextCapitalization textCapitalization;
+
+  bool get isMultiLine => maxLines > 1;
+
+  @override
+  Widget build(BuildContext context) {
+    return TextField(
+      onTap: onTap,
+      onSubmitted: onSubmitted,
+      onChanged: onChanged,
+      decoration: InputDecoration(
+        border: const OutlineInputBorder(),
+        label: Text(label),
+        contentPadding: EdgeInsets.symmetric(
+          horizontal: 10,
+          vertical: isMultiLine ? 14 : 8,
+        ),
+        hintText: hintText,
+        prefixIcon: isMultiLine
+            ? Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(8, 4, 8, 8),
+                    child: Icon(prefixIcon),
+                  ),
+                ],
+              )
+            : Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Icon(prefixIcon),
+              ),
+        prefixIconConstraints: isMultiLine
+            ? const BoxConstraints(minHeight: 79)
+            : const BoxConstraints.tightForFinite(),
+        alignLabelWithHint: true,
+      ),
+      controller: controller,
+      focusNode: currentFocusNode,
+      keyboardType: !digitOnly ? TextInputType.number : null,
+      inputFormatters:
+          !digitOnly ? [FilteringTextInputFormatter.digitsOnly] : [],
+      maxLines: maxLines,
+      textInputAction: TextInputAction.done,
+      textCapitalization: TextCapitalization.words,
+      autocorrect: false,
     );
   }
 }
