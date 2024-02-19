@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:jewelist/src/features/check_list/controllers/controllers.dart';
 import 'package:jewelist/src/features/check_list/views/create_item_dialog.dart';
+import 'package:jewelist/src/features/check_list/widgets/checklist_bottom_line.dart';
+import 'package:jewelist/src/features/check_list/widgets/jewelist_drawer.dart';
 import 'package:jewelist/src/features/check_list/widgets/widgets.dart';
 import 'package:jewelist/src/models/models.dart';
 
@@ -16,17 +18,13 @@ class HomeScreen extends ConsumerStatefulWidget {
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
   final ScrollController _scrollController = ScrollController();
+  final EdgeInsets checklistPadding = const EdgeInsets.symmetric(
+    horizontal: 15,
+    vertical: 20,
+  );
+  final double separatorHeight = 20.0;
 
   void createNewItem() {
-    // showAboutDialog(
-    //   context: context,
-    //   applicationName: 'Jewelist',
-    //   applicationVersion: 'Wersion 0.1',
-    //   applicationIcon: Expanded(
-    //     child: Image.network(
-    //         'https://res.cloudinary.com/unimemo-dfd94/image/upload/v1705308971/22487340_d7hjqv.jpg'),
-    //   ),
-    // );
     showDialog(
       context: context,
       builder: (context) {
@@ -37,10 +35,34 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     );
   }
 
+  double getChecklistHeight(List<Item> items) {
+    // Calculate the total height of all items including separators and padding
+    const appBarHight = 115.0;
+    const itemHeight = 68.0; // Fixed height for each item
+
+    final double totalItemsHeight = appBarHight +
+        items.length * itemHeight +
+        (items.length - 1) * separatorHeight;
+
+    return totalItemsHeight + checklistPadding.vertical;
+  }
+
+  bool checkShowBottomLine(List<Item> items) {
+    // Get the checklist height
+    final double checklistHeight = getChecklistHeight(items);
+
+    // Get the screen height
+    final double screenHeight = MediaQuery.of(context).size.height;
+    return checklistHeight > screenHeight;
+  }
+
   @override
   Widget build(BuildContext context) {
     final checklist = ref.watch(checklistControllerProvider);
     final List<Item> items = checklist.items;
+
+    // Determine if the bottom line should be shown
+    final bool showBottomLine = checkShowBottomLine(items);
 
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.primaryContainer,
@@ -50,54 +72,26 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         foregroundColor: Theme.of(context).colorScheme.onPrimary,
         elevation: 2,
       ),
-      // drawer: Drawer(),
+      drawer: const JewelistDrawer(),
       body: items.isEmpty
           ? const Center(
               child: Text('No items yet.'),
             )
           : ListView.separated(
               controller: _scrollController,
-              padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 20),
-              separatorBuilder: (context, index) => const SizedBox(height: 20),
-              itemCount: items.length + 1,
+              padding: checklistPadding,
+              separatorBuilder: (context, index) =>
+                  SizedBox(height: separatorHeight),
+              physics: const AlwaysScrollableScrollPhysics(),
+              itemCount: items.length + (showBottomLine ? 1 : 0),
               itemBuilder: (context, index) {
-                if (index == items.length) {
-                  return Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Container(
-                        color: Theme.of(context).colorScheme.outline,
-                        height: 1,
-                        width: 70,
-                      ),
-                      const SizedBox(
-                        width: 5,
-                      ),
-                      Text(
-                        'I literally have a bottom line',
-                        textAlign: TextAlign.center,
-                        style:
-                            Theme.of(context).textTheme.labelMedium!.copyWith(
-                                  color: Theme.of(context).colorScheme.outline,
-                                ),
-                      ),
-                      const SizedBox(
-                        width: 5,
-                      ),
-                      Container(
-                        color: Theme.of(context).colorScheme.outline,
-                        height: 1,
-                        width: 70,
-                      ),
-                    ],
-                  );
+                if (showBottomLine && index == items.length) {
+                  return const ChecklistBottomLine();
                 }
 
                 final item = items[index];
 
-                return ItemTile(
-                  item: item,
-                );
+                return ItemTile(item: item);
               },
             ),
       floatingActionButton: FloatingActionButton(

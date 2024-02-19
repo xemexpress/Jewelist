@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:jewelist/src/core/extensions.dart';
 import 'package:jewelist/src/features/check_list/controllers/controllers.dart';
@@ -28,6 +27,13 @@ class _CreateItemDialogState extends ConsumerState<CreateItemDialog> {
   final _descriptionFocusNode = FocusNode();
 
   bool _titleError = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _titleFocusNode.requestFocus();
+  }
 
   @override
   void dispose() {
@@ -74,11 +80,13 @@ class _CreateItemDialogState extends ConsumerState<CreateItemDialog> {
     WidgetsBinding.instance.addPostFrameCallback(
       (_) {
         if (widget.scrollController.hasClients) {
-          widget.scrollController.animateTo(
-            widget.scrollController.position.maxScrollExtent + 80,
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.easeOut,
-          );
+          if (widget.scrollController.position.maxScrollExtent > 0) {
+            widget.scrollController.animateTo(
+              widget.scrollController.position.maxScrollExtent + 80,
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeOut,
+            );
+          }
         }
       },
     );

@@ -80,7 +80,9 @@ class ChecklistController extends StateNotifier<ChecklistState> {
 
       showSnackBar(
         context: context,
-        message: 'Saved ${item.title} x ${item.quantityString}.',
+        message: item.quantity == 0
+            ? 'Saved ${item.title}.'
+            : 'Saved ${item.title} x ${item.quantityString}.',
       );
     } catch (e) {
       showSnackBar(
@@ -154,6 +156,25 @@ class ChecklistController extends StateNotifier<ChecklistState> {
       showSnackBar(
         context: context,
         message: 'Unexpected error when deleting item. ${e.toString()}',
+        dismissText: 'Gotcha!',
+      );
+    }
+  }
+
+  void deleteAllItems(BuildContext context) {
+    try {
+      startLoading();
+      for (var item in state.items) {
+        _itemAPI.deleteItem(item);
+      }
+      endLoading();
+
+      state = state.copyWith(items: []);
+      showSnackBar(context: context, message: 'Removed all items.');
+    } catch (e) {
+      showSnackBar(
+        context: context,
+        message: 'Unexpected error when deleting all items. ${e.toString()}',
         dismissText: 'Gotcha!',
       );
     }
